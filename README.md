@@ -1,6 +1,6 @@
-[![wercker status](https://app.wercker.com/status/965720bdeb6427fcccf0323da755240b/s/master "wercker status")](https://app.wercker.com/project/bykey/965720bdeb6427fcccf0323da755240b)
-[![Code Climate](https://codeclimate.com/github/node-modli/modli-mongo/badges/gpa.svg)](https://codeclimate.com/github/node-modli/modli-mongo)
-[![Test Coverage](https://codeclimate.com/github/node-modli/modli-mongo/badges/coverage.svg)](https://codeclimate.com/github/node-modli/modli-mongo/coverage)
+[![wercker status](https://app.wercker.com/status/5ec770d595a477b6c1bd7bac355c6dcc/s/master "wercker status")](https://app.wercker.com/project/bykey/5ec770d595a477b6c1bd7bac355c6dcc)
+[![Code Climate](https://codeclimate.com/github/node-modli/modli-redis/badges/gpa.svg)](https://codeclimate.com/github/node-modli/modli-redis)
+[![Test Coverage](https://codeclimate.com/github/node-modli/modli-redis/badges/coverage.svg)](https://codeclimate.com/github/node-modli/modli-redis/coverage)
 
 > # ATTENTION: In Development
 
