@@ -95,4 +95,14 @@ export default class {
      });
    }
 
+  /**
+   * Alias's the create to overwrite existing record (or create new)
+   * @param {String|Number} key The key to use
+   * @param {Object} body The body/data to create in the hash
+   * @param {String|Number} version The version of the model to validate
+   */
+   update (key, body, version = false) {
+     return this.create(key, body, version);
+   }
+
 }

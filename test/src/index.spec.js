@@ -107,4 +107,21 @@ describe('redis', () => {
         });
     });
   });
+
+  describe('update', () => {
+    it('responds with failure if invalid data is passed', (done) => {
+      testRedis.update('foo', { failValidate: true}, false, 1)
+        .catch((err) => {
+          expect(err.error).to.be.true;
+          done();
+        });
+    });
+    it('updates original record (if exists) or creates new', (done) => {
+      testRedis.update('foo', { bar: 'foo2' }, 1)
+        .then((res) => {
+          expect(res).to.equal('OK');
+          done();
+        });
+    });
+  });
 });
