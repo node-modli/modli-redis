@@ -27,11 +27,30 @@ export default class {
   }
 
   /**
+   * Executes a command against the client
+   * @param {String} command The command to execute
+   * @param {*} ...params Spread of args to command
+   * @returns {Object} promise
+   */
+  execute (command, ...params) {
+    return new Promise((resolve, reject) => {
+      this.client[command](...params, (err, reply) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(reply);
+        }
+      });
+    });
+  }
+
+  /**
    * Creates a hash set based on body object
    * @param {String|Number} key The key to use
    * @param {Object} body The body/data to create in the hash
    * @param {Number} expires The duration before expiration (in seconds)
    * @param {String|Number} version The version of the model to validate
+   * @returns {Object} promise
    */
   create (key, body, expires, version = false) {
     return new Promise((resolve, reject) => {
@@ -39,11 +58,8 @@ export default class {
       if (validationErrors) {
         reject(validationErrors);
       } else {
-        this.client.set(key, JSON.stringify(body), (err, reply) => {
-          /* istanbul ignore if */
-          if (err) {
-            reject(err);
-          } else {
+        this.execute('set', key, JSON.stringify(body))
+          .then((reply) => {
             if (expires) {
               this.client.expire(key, expires, (e) => {
                 reject(e);
@@ -51,8 +67,10 @@ export default class {
               });
             }
             resolve(reply);
-          }
-        });
+          })
+          .catch((err) => {
+            reject(err);
+          });
       }
     });
   }

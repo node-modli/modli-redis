@@ -14,7 +14,7 @@ const testRedis = new redis(config);
 // Mock validation method, this is automatically done by the model
 testRedis.validate = (body) => {
   // Test validation failure by passing `failValidate: true`
-  if (body.failValidate) {
+  if (typeof body === 'object' && body.failValidate) {
     return { error: true };
   }
   // Mock passing validation, return null
@@ -32,11 +32,38 @@ describe('redis', () => {
       expect(() => new redis({})).to.throw;
       done();
     });
+    it('automatically uses the default port if none specified', (done) => {
+      const testConn = new redis({ host: config.host, password: config.password });
+      expect(testConn).to.be.an.object;
+      expect(testConn.client.address).to.equal(`${config.host}:${config.port}`);
+      done();
+    });
     it('connects to redis instance with valid config', (done) => {
       const testConn = new redis(config);
       expect(testConn).to.be.an.object;
       expect(testConn.client.address).to.equal(`${config.host}:${config.port}`);
       done();
+    });
+  });
+
+  describe('execute', () => {
+    it('responds with an error if the command is undefined', (done) => {
+      expect(() => { testRedis.execute('fart'); }).to.throw;
+      done();
+    });
+    it('responds with an error if command is invalid', (done) => {
+      testRedis.execute('set')
+        .catch((err) => {
+          expect(err).to.be.instanceof(Error);
+          done();
+        });
+    });
+    it('executes a command with passed params', (done) => {
+      testRedis.execute('set', 'fooExec', 'hello')
+        .then((reply) => {
+          expect(reply).to.equal('OK');
+          done();
+        });
     });
   });
 
@@ -49,8 +76,11 @@ describe('redis', () => {
         });
     });
     it('throws an error if invalid params passed', (done) => {
-      expect(testRedis.create('fooFail', { foo: 'bar' }, 'fart')).to.throw;
-      done();
+      testRedis.create('fooFail', undefined, false)
+        .catch((err) => {
+          expect(err).to.be.instanceof(Error);
+          done();
+        });
     });
     it('creates a new record in the store', (done) => {
       testRedis.create('foo', { foo: 'bar' }, false, 1)
