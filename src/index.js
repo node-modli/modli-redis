@@ -115,4 +115,13 @@ export default class {
     return this.execute('del', key);
   }
 
+  /**
+   * Extends adapter by adding new method
+   * @param {String} name The name of the method
+   * @param {Function} fn The method to add
+   */
+  extend (name, fn) {
+    this[name] = fn.bind(this);
+  }
+
 }

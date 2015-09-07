@@ -134,4 +134,15 @@ describe('redis', () => {
         });
     });
   });
+
+  describe('extend', () => {
+    it('extends the object to allow for custom method', () => {
+      // Extend
+      testRedis.extend('myTestFn', () => {
+        return 'foo';
+      });
+      // Test
+      expect(testRedis.myTestFn()).to.equal('foo');
+    });
+  });
 });
