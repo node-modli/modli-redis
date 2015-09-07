@@ -2,10 +2,6 @@
 [![Code Climate](https://codeclimate.com/github/node-modli/modli-redis/badges/gpa.svg)](https://codeclimate.com/github/node-modli/modli-redis)
 [![Test Coverage](https://codeclimate.com/github/node-modli/modli-redis/badges/coverage.svg)](https://codeclimate.com/github/node-modli/modli-redis/coverage)
 
-> # ATTENTION: In Development
-
-> This repository is currently in development.
-
 # Modli - Redis Adapter
 
 This module provides adapter for the [Redis](http://redis.io/)
@@ -17,32 +13,136 @@ datasource for integration with [Modli](https://github.com/node-modli).
 npm install modli-redis --save
 ```
 
-## Usage
+## Config and Usage
+
+When defining a property which will utilize the adapter it is required that a
+`collection` be supplied:
 
 ```javascript
 import { model, adapter, Joi, use } from 'modli';
-import { redis } from 'modli-redis';
+import redis from 'modli-redis';
 
-// Create a model
 model.add({
-  name: 'testModel',
+  name: 'foo',
   version: 1,
   schema: {
-    /* ...schema properties... */
+    id: Joi.number().integer(),
+    fname: Joi.string().min(3).max(30),
+    lname: Joi.string().min(3).max(30),
+    email: Joi.string().email().min(3).max(254).required()
   }
 });
+```
 
-// Add adapter using NeDB
-model.add({
-  name: 'testRedis',
+Then add the adapter as per usual with the following config object structure:
+
+```javascript
+adapter.add({
+  name: 'redisFoo',
   source: redis
   config: {
-    /*...*/
+    host: {HOST_IP},
+    port: {HOST_PORT},
+    password: {PASSWORD},
+    opts: {OPTIONAL_PARAMS}
   }
 });
-
-const testModli = use('testModel', 'testRedis');
 ```
+
+You can then use the adapter with a model via:
+
+```javascript
+// Use(MODEL, ADAPTER)
+const redisTest = use('foo', 'redisFoo');
+```
+
+## Methods
+
+The following methods exist natively on the Redis adapter:
+
+### `execute`
+
+Allows for executing methods directly on the client:
+
+```javascript
+redisTest.execute('set', 'key-name', { /*...record...*/ })
+  .then(/*...*/)
+  .catch(/*...*/);
+```
+
+### `create`
+
+Creates a new record based on object passed:
+
+```javascript
+redisTest.create('some-key', {
+    fname: 'John',
+    lname: 'Smith',
+    email: 'jsmith@gmail.com'
+  }, [version])
+  .then(/*...*/)
+  .catch(/*...*/);
+```
+
+### `read`
+
+Returns records matching a key:
+
+```javascript
+redisTest.read('some-key', [version])
+  .then(/*...*/)
+  .catch(/*...*/);
+```
+
+### `update`
+
+Updates record(s) based on key and body:
+
+```javascript
+redisTest.update('some-key', {
+    fname: 'Bob',
+    email: 'bsmith@gmail.com'
+  }, [version])
+  .then(/*...*/)
+  .catch(/*...*/);
+```
+
+*Note: will create a new record if no existing record present*
+
+### `delete`
+
+Deletes record based on key:
+
+```javascript
+redisTest.delete('some-key')
+  .then(/*...*/)
+  .catch(/*...*/);
+```
+
+### `extend`
+
+Extends the adapter to allow for custom methods:
+
+```javascript
+redisTest.extend('myMethod', () => {
+  /*...*/
+});
+```
+
+## Development
+
+The Redis adapter requires the following environment variables to be set for
+running the tests. These should be associated with the Redis instance running
+locally.
+
+```
+MODLI_REDIS_HOST,
+MODLI_REDIS_PORT,
+MODLI_REDIS_PASSWORD
+```
+
+This repository includes a base container config for running locally which is
+located in the [/docker](/docker) directory.
 
 ## Makefile and Scripts
 
