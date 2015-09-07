@@ -1,6 +1,6 @@
 {
   "name": "modli-redis",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Modli adapter for Redis",
   "main": "build/index.js",
   "repository": {
