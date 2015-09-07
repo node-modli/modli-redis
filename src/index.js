@@ -82,9 +82,9 @@ export default class {
    * @param {String|Number} [version] The model version to sanitize against
    * @returns {Object} promise
    */
-   read (key, version = false) {
-     return new Promise((resolve, reject) => {
-       this.execute('get', key)
+  read (key, version = false) {
+    return new Promise((resolve, reject) => {
+      this.execute('get', key)
         .then((reply) => {
           resolve(this.sanitize(JSON.parse(reply), version));
         })
@@ -92,17 +92,27 @@ export default class {
           /* istanbul ignore next */
           (err) => { reject(err); }
         );
-     });
-   }
+    });
+  }
 
   /**
    * Alias's the create to overwrite existing record (or create new)
    * @param {String|Number} key The key to use
    * @param {Object} body The body/data to create in the hash
    * @param {String|Number} version The version of the model to validate
+   * @returns {Object} promise
    */
-   update (key, body, version = false) {
-     return this.create(key, body, version);
-   }
+  update (key, body, version = false) {
+    return this.create(key, body, version);
+  }
+
+   /**
+    * Deletes a record based on the key passed
+    * @param {String|Number} key The key to delete
+    * @returns {Object} promise
+    */
+  delete (key) {
+    return this.execute('del', key);
+  }
 
 }

@@ -124,4 +124,14 @@ describe('redis', () => {
         });
     });
   });
+
+  describe('delete', () => {
+    it('deletes a record from the datasource', (done) => {
+      testRedis.delete('foo')
+        .then((res) => {
+          expect(res).to.be.a.number;
+          done();
+        });
+    });
+  });
 });
