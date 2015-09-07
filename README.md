@@ -15,9 +15,6 @@ npm install modli-redis --save
 
 ## Config and Usage
 
-When defining a property which will utilize the adapter it is required that a
-`collection` be supplied:
-
 ```javascript
 import { model, adapter, Joi, use } from 'modli';
 import redis from 'modli-redis';
