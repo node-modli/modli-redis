@@ -97,4 +97,14 @@ describe('redis', () => {
         });
     });
   });
+
+  describe('read', () => {
+    it('returns the original object when found', (done) => {
+      testRedis.read('foo', 1)
+        .then((res) => {
+          expect(res.foo).to.equal('bar');
+          done();
+        });
+    });
+  });
 });

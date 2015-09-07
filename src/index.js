@@ -16,9 +16,10 @@ export default class {
   constructor (config) {
     config.port = config.port || 6379;
     this.client = redis.createClient(config.port, config.host, config.opts);
+    /* istanbul ignore else */
     if (config.password) {
       this.client.auth(config.password, (err) => {
-        /* istanbul ignore if */
+        /* istanbul ignore next */
         if (err) {
           throw new Error(err);
         }
@@ -45,7 +46,7 @@ export default class {
   }
 
   /**
-   * Creates a hash set based on body object
+   * Creates a record based on body object
    * @param {String|Number} key The key to use
    * @param {Object} body The body/data to create in the hash
    * @param {Number} expires The duration before expiration (in seconds)
@@ -74,5 +75,24 @@ export default class {
       }
     });
   }
+
+  /**
+   * Reads from record based on key
+   * @param {String|Number} key The key to find
+   * @param {String|Number} [version] The model version to sanitize against
+   * @returns {Object} promise
+   */
+   read (key, version = false) {
+     return new Promise((resolve, reject) => {
+       this.execute('get', key)
+        .then((reply) => {
+          resolve(this.sanitize(JSON.parse(reply), version));
+        })
+        .catch(
+          /* istanbul ignore next */
+          (err) => { reject(err); }
+        );
+     });
+   }
 
 }
