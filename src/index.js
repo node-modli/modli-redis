@@ -106,13 +106,32 @@ export default class {
     return this.create(key, body, version);
   }
 
-   /**
-    * Deletes a record based on the key passed
-    * @param {String|Number} key The key to delete
-    * @returns {Object} promise
-    */
+  /**
+   * Deletes a record based on the key passed
+   * @param {String|Number} key The key to delete
+   * @returns {Object} promise
+   */
   delete (key) {
     return this.execute('del', key);
+  }
+
+  /**
+   * Publishes (validated) data to a channel
+   * @param {String} channel The channel to publish to
+   * @param {Object} body The body to publish
+   * @param {String|Number} version The version of the model to validate
+   * @returns {Object} promise
+   */
+  publish (channel, body, version = false) {
+    return new Promise((resolve, reject) => {
+      const validationErrors = this.validate(body, version);
+      if (validationErrors) {
+        reject(validationErrors);
+      } else {
+        this.execute('publish', channel, JSON.stringify(body));
+        resolve('OK');
+      }
+    });
   }
 
   /**

@@ -119,6 +119,20 @@ redisTest.delete('some-key')
   .catch(/*...*/);
 ```
 
+### `publish`
+
+Publishes data to a channel:
+
+```javascript
+redisTest.publish('fooChannel', {
+    fname: 'John',
+    lname: 'Smith',
+    email: 'jsmith@gmail.com'
+  }, [version])
+  .then(/*...*/)
+  .catch(/*...*/);
+```
+
 ### `extend`
 
 Extends the adapter to allow for custom methods:

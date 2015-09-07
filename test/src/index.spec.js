@@ -135,6 +135,23 @@ describe('redis', () => {
     });
   });
 
+  describe('publish', () => {
+    it('responds with failure if invalid data is passed', (done) => {
+      testRedis.publish('fooChannel', { failValidate: true}, 1)
+        .catch((err) => {
+          expect(err.error).to.be.true;
+          done();
+        });
+    });
+    it('publishes valid data to a channel', (done) => {
+      testRedis.publish('fooChannel', { foo: 'bar' }, 1)
+        .then((res) => {
+          expect(res).to.equal('OK');
+          done();
+        });
+    });
+  });
+
   describe('extend', () => {
     it('extends the object to allow for custom method', () => {
       // Extend
