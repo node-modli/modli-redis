@@ -133,6 +133,16 @@ redisTest.publish('fooChannel', {
   .catch(/*...*/);
 ```
 
+### `subscribe`
+
+Subscribes to a channel:
+
+```javascript
+redisTest.subscribe('fooChannel', (data) => {
+    return data;
+  }, [version]);
+```
+
 ### `extend`
 
 Extends the adapter to allow for custom methods:

@@ -135,6 +135,22 @@ export default class {
   }
 
   /**
+   * Subscribes to a channel, parses/sanitizes data on event
+   * @param {String} channel The channel to subscribe to
+   * @param {Function} fn The function to call on event
+   * @param {String|Number} version The version on the model to sanitize
+   */
+  subscribe (channel, fn, version = false) {
+    /* istanbul ignore next */
+    this.client.on('message', (chnl, body) => {
+      if (chnl === channel) {
+        fn(this.sanitize(JSON.parse(body), version));
+      }
+    });
+    return 'OK';
+  }
+
+  /**
    * Extends adapter by adding new method
    * @param {String} name The name of the method
    * @param {Function} fn The method to add

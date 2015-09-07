@@ -106,6 +106,13 @@ describe('redis', () => {
           done();
         });
     });
+    it('returns null when not found', (done) => {
+      testRedis.read('fooNotExists')
+        .then((res) => {
+          expect(res).to.equal(null);
+          done();
+        });
+    });
   });
 
   describe('update', () => {
@@ -144,11 +151,19 @@ describe('redis', () => {
         });
     });
     it('publishes valid data to a channel', (done) => {
-      testRedis.publish('fooChannel', { foo: 'bar' }, 1)
+      testRedis.publish('fooChannel', { foo: 'bar' })
         .then((res) => {
           expect(res).to.equal('OK');
           done();
         });
+    });
+  });
+
+  describe('subscribe', () => {
+    const testFn = (data) => data;
+    it('subscribes to a channel', () => {
+      const subscription = testRedis.subscribe('fooChannel', testFn, 1);
+      expect(subscription).to.equal('OK');
     });
   });
 
