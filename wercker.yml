@@ -6,9 +6,11 @@ services:
 build:
   steps:
     - script:
-        name: dynamodb config
+        name: redis config
         code: |
-          export MODLI_DYNAMODB_HOST=http://${DYNAMODB_PORT_8000_TCP_ADDR}:${DYNAMODB_PORT_8000_TCP_PORT}
+          export MODLI_REDIS_HOST=${REDIS_PORT_6379_TCP_ADDR}
+          export MODLI_REDIS_PORT=${REDIS_PORT_6379_TCP_PORT}
+          export MODLI_REDIS_PASSWORD=${REDIS_ENV_REDIS_PASSWORD}
     - script:
         name: echo env
         code: |
@@ -30,7 +32,7 @@ build:
         name: build
         code: |
           make build
-          
+
   after-steps:
     # Run and report coverage
     - script:
