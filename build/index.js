@@ -18,6 +18,10 @@ var _redis = require('redis');
 
 var _redis2 = _interopRequireDefault(_redis);
 
+var _nodeRedisPubsub = require('node-redis-pubsub');
+
+var _nodeRedisPubsub2 = _interopRequireDefault(_nodeRedisPubsub);
+
 /**
  * @class redis
  */
@@ -36,16 +40,19 @@ var _default = (function () {
     _classCallCheck(this, _default);
 
     config.port = config.port || 6379;
+    // Standard client
     this.client = _redis2['default'].createClient(config.port, config.host, config.opts);
     /* istanbul ignore else */
     if (config.password) {
-      this.client.auth(config.password, function (err) {
-        /* istanbul ignore next */
-        if (err) {
-          throw new Error(err);
-        }
-      });
+      this.client.auth(config.password);
     }
+    // Create pub-sub client
+    var psConfig = {
+      host: config.host,
+      port: config.port,
+      auth: config.password
+    };
+    this.clientPubSub = new _nodeRedisPubsub2['default'](psConfig);
   }
 
   /**
@@ -172,19 +179,14 @@ var _default = (function () {
   }, {
     key: 'publish',
     value: function publish(channel, body) {
-      var _this4 = this;
-
       var version = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
-      return new _bluebird2['default'](function (resolve, reject) {
-        var validationErrors = _this4.validate(body, version);
-        if (validationErrors) {
-          reject(validationErrors);
-        } else {
-          _this4.execute('publish', channel, JSON.stringify(body));
-          resolve('OK');
-        }
-      });
+      var validationErrors = this.validate(body, version);
+      /* istanbul ignore else */
+      if (validationErrors) {
+        return new Error(validationErrors);
+      }
+      this.clientPubSub.emit(channel, JSON.stringify(body));
     }
 
     /**
@@ -196,17 +198,13 @@ var _default = (function () {
   }, {
     key: 'subscribe',
     value: function subscribe(channel, fn) {
-      var _this5 = this;
+      var _this4 = this;
 
       var version = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
-      /* istanbul ignore next */
-      this.client.on('message', function (chnl, body) {
-        if (chnl === channel) {
-          fn(_this5.sanitize(JSON.parse(body), version));
-        }
+      this.clientPubSub.on(channel, function (body) {
+        fn(_this4.sanitize(JSON.parse(body), version));
       });
-      return 'OK';
     }
 
     /**

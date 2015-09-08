@@ -143,27 +143,24 @@ describe('redis', () => {
   });
 
   describe('publish', () => {
-    it('responds with failure if invalid data is passed', (done) => {
-      testRedis.publish('fooChannel', { failValidate: true}, 1)
-        .catch((err) => {
-          expect(err.error).to.be.true;
-          done();
-        });
+    it('responds with failure if invalid data is passed', () => {
+      expect(testRedis.publish('fooChannel', { failValidate: true}, 1)).to.be.instanceof(Error);
     });
-    it('publishes valid data to a channel', (done) => {
-      testRedis.publish('fooChannel', { foo: 'bar' })
-        .then((res) => {
-          expect(res).to.equal('OK');
-          done();
-        });
+    it('publishes valid data to a channel', () => {
+      expect(() => { testRedis.publish('fooChannel', { foo: 'bar' }); }).to.not.throw;
     });
   });
 
   describe('subscribe', () => {
-    const testFn = (data) => data;
-    it('subscribes to a channel', () => {
-      const subscription = testRedis.subscribe('fooChannel', testFn, 1);
-      expect(subscription).to.equal('OK');
+    it('subscribes to a channel', (done) => {
+      const testFn = (data) =>  {
+        expect(data).to.deep.equal({ foo: 'bar' });
+        done();
+      };
+      // Subscribe
+      testRedis.subscribe('fooChannel', testFn, 1);
+      // Publish
+      testRedis.publish('fooChannel', { foo: 'bar' });
     });
   });
 

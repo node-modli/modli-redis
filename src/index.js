@@ -1,5 +1,6 @@
 import Promise from 'bluebird';
 import redis from 'redis';
+import NRP from 'node-redis-pubsub';
 
 /**
  * @class redis
@@ -15,16 +16,19 @@ export default class {
    */
   constructor (config) {
     config.port = config.port || 6379;
+    // Standard client
     this.client = redis.createClient(config.port, config.host, config.opts);
     /* istanbul ignore else */
     if (config.password) {
-      this.client.auth(config.password, (err) => {
-        /* istanbul ignore next */
-        if (err) {
-          throw new Error(err);
-        }
-      });
+      this.client.auth(config.password);
     }
+    // Create pub-sub client
+    const psConfig = {
+      host: config.host,
+      port: config.port,
+      auth: config.password
+    };
+    this.clientPubSub = new NRP(psConfig);
   }
 
   /**
@@ -123,15 +127,12 @@ export default class {
    * @returns {Object} promise
    */
   publish (channel, body, version = false) {
-    return new Promise((resolve, reject) => {
-      const validationErrors = this.validate(body, version);
-      if (validationErrors) {
-        reject(validationErrors);
-      } else {
-        this.execute('publish', channel, JSON.stringify(body));
-        resolve('OK');
-      }
-    });
+    const validationErrors = this.validate(body, version);
+    /* istanbul ignore else */
+    if (validationErrors) {
+      return new Error(validationErrors);
+    }
+    this.clientPubSub.emit(channel, JSON.stringify(body));
   }
 
   /**
@@ -141,13 +142,9 @@ export default class {
    * @param {String|Number} version The version on the model to sanitize
    */
   subscribe (channel, fn, version = false) {
-    /* istanbul ignore next */
-    this.client.on('message', (chnl, body) => {
-      if (chnl === channel) {
-        fn(this.sanitize(JSON.parse(body), version));
-      }
+    this.clientPubSub.on(channel, (body) => {
+      fn(this.sanitize(JSON.parse(body), version));
     });
-    return 'OK';
   }
 
   /**

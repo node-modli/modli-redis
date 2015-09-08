@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "bluebird": "^2.9.34",
+    "node-redis-pubsub": "^0.6.0",
     "redis": "^1.0.0"
   },
   "pre-commit": [
